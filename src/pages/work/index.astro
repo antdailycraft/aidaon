@@ -59,9 +59,11 @@ const works = [
     const dy=top<position?-48:48;
     position=top;
     entries.forEach((entry,index)=>{
-      const tile=entry.target;
-      tile.getAnimations().forEach(animation=>animation.cancel());
-      if(!motion.matches && entry.isIntersecting) tile.animate([
+      // Observe the stationary card and animate only its contents.
+      const link = entry.target.querySelector('a');
+      if (!link) return;
+      link.getAnimations().forEach(animation=>animation.cancel());
+      if(!motion.matches && entry.isIntersecting) link.animate([
         {transform:`translateY(${dy}px) scale(.96)`,opacity:.6},
         {transform:'none',opacity:1}
       ],{duration:600,delay:Math.min(index,5)*28,easing:'cubic-bezier(.18,.78,.2,1)',fill:'backwards'});
