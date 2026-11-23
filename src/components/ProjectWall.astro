@@ -1,0 +1,76 @@
+---
+import { publicTools } from '../data/public-tools';
+import { products } from '../data/products';
+
+const dooti = products.find(product => product.name === 'Dooti');
+const etf = products.find(product => product.name === 'ETF Finder');
+const [adfree, glossary] = ['Adfree', 'Mobile UI Glossary'].map(name => publicTools.find(tool => tool.name === name));
+---
+<div class="wall" aria-label="프로젝트 바로가기" role="group">
+  <div class="lane">
+    {etf?.url && <a class="tile etf" href={etf.url}>
+      <span class="art"><img src={etf.image} width="520" height="440" alt="" /></span>
+      <span class="caption">{etf.name}<b aria-hidden="true">↗</b></span>
+    </a>}
+    {glossary && <a class="tile glossary" href={glossary.url}>
+      <span class="art"><img src={glossary.image} width="880" height="552" alt="" /></span>
+      <span class="caption">{glossary.name}<b aria-hidden="true">↗</b></span>
+    </a>}
+  </div>
+  <div class="lane">
+    {adfree && <a class="tile adfree" href={adfree.url}>
+      <span class="art"><img src={adfree.image} width="880" height="552" alt="" /></span>
+      <span class="caption">{adfree.name}<b aria-hidden="true">↗</b></span>
+    </a>}
+    {dooti && <a class="tile dooti" href="#dooti">
+      <span class="art"><img src={dooti.image} alt="" width="720" height="900" /></span>
+      <span class="caption">Dooti<b aria-hidden="true">↓</b></span>
+    </a>}
+  </div>
+</div>
+<style>
+  .wall { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(8px,1vw,16px); align-self: center; }
+  .lane { display: flex; flex-direction: column; gap: clamp(8px,1vw,16px); min-width: 0; }
+  .tile { display: flex; position: relative; flex-direction: column; border-radius: 10px; color: #192236; text-decoration: none; overflow: hidden; transform-origin: center; }
+  .tile:focus-visible { outline: 3px solid white; outline-offset: 2px; }
+  .etf { background: #d3ddcd; }
+  .adfree { background: #ccdaf6; }
+  .glossary { background: #e7dafa; }
+  .art { display: block; margin: 8% 7% 0; overflow: hidden; aspect-ratio: 1.96; border-radius: 4px; }
+  .etf .art, .dooti .art { aspect-ratio: 1.36; }
+  .art img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .dooti .art img { object-position: center; }
+  .caption { display: flex; justify-content: space-between; align-items: center; gap: 3px; padding: .65em 7%; line-height: 1.15; font-weight: 720; font-size: clamp(15px,1.55vw,24px); letter-spacing: -.045em; }
+  .caption b { font-size: .8em; }
+  .dooti { flex: 1; min-height: 130px; justify-content: end; background: #f4c48c; }
+  @media(hover:hover) and (prefers-reduced-motion:no-preference) {
+    .tile img { transition: transform .35s ease-out; }
+    .tile:hover img { transform: scale(1.05); }
+  }
+  @media(max-width:400px) { .caption { font-size: 14px; } }
+</style>
+<script>
+  const wall = document.querySelector('.wall');
+  if (wall && 'IntersectionObserver' in window) {
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    let previousY = window.scrollY;
+    const observer = new IntersectionObserver(entries => {
+      const direction = window.scrollY < previousY ? -1 : 1;
+      previousY = window.scrollY;
+      entries.forEach((entry, index) => {
+        const tile = entry.target;
+        tile.getAnimations().forEach(animation => animation.cancel());
+        if (!entry.isIntersecting || reduced.matches) return;
+        const side = tile.parentElement === wall.firstElementChild ? -1 : 1;
+        tile.animate([
+          { opacity: .5, transform: `translate(${side * 12}px, ${direction * 36}px) scale(.96)` },
+          { opacity: 1, transform: 'none' }
+        ], { duration: 560, delay: index * 35, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' });
+      });
+    });
+    wall.querySelectorAll('.tile').forEach(tile => observer.observe(tile));
+    reduced.addEventListener('change', () => {
+      if (reduced.matches) wall.getAnimations({ subtree: true }).forEach(animation => animation.cancel());
+    });
+  }
+</script>

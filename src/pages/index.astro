@@ -1,34 +1,79 @@
-<!doctype html>
-<html lang="ko">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="AIDAON은 AI 기반 제품을 만드는 1인 제품 스튜디오입니다." />
-    <title>AIDAON — 준비 중</title>
-  </head>
-  <body>
-    <main>
-      <h1>AIDAON — 준비 중</h1>
-      <p><a href="https://blog.aidaon.com">블로그 읽기</a></p>
-    </main>
-  </body>
-</html>
-
-<style>
-  html {
-    color-scheme: light dark;
-    font-family: system-ui, sans-serif;
-  }
-
-  body {
-    min-height: 100svh;
-    margin: 0;
-    display: grid;
-    place-items: center;
-  }
-
-  main {
-    padding: 1.5rem;
-    text-align: center;
-  }
-</style>
+---
+import Layout from '../layouts/Layout.astro';
+import { projectArchive } from '../data/project-archive';
+import { publicTools } from '../data/public-tools';
+import ProjectWall from '../components/ProjectWall.astro';
+import ProductEntry from '../components/ProductEntry.astro';
+import { products } from '../data/products';
+import '../styles/studio.css';
+import { getLatestPost } from '../data/latest-post';
+const latestPost = await getLatestPost();
+---
+<Layout>
+  <a class="skip" href="#content">본문 바로가기</a>
+  <header class="cover">
+    <div class="wrap mast">
+      <a class="brand" href="/" aria-label="AIDAON 홈"><i aria-hidden="true"></i>AIDAON</a>
+      <nav aria-label="주요 메뉴"><a href="#products">제품</a><a href="#studio">스튜디오</a><a href="#journal">블로그</a></nav>
+    </div>
+  </header>
+  <main id="content">
+    <section class="cover">
+      <div class="wrap hero">
+        <div class="intro">
+          <div class="eyebrow"><span class="signal"></span>Independent AI Product Studio</div>
+          <h1>작은 질문을<br/>쓸모 있는<br/><em>제품으로.</em></h1>
+          <p>AIDAON은 일상의 불편에서 출발해 AI로 제품을 만들고, 그 쓸모를 확인하는 1인 스튜디오입니다.</p>
+          <div class="hero-actions"><a class="action" href="/work/">제품 보기 <b aria-hidden="true">→</b></a><a href="#contact">소식 받기 <span aria-hidden="true">↘</span></a></div>
+        </div>
+        <ProjectWall />
+      </div>
+    </section>
+    <section class="wrap catalog" id="products" aria-labelledby="product-heading">
+      <div class="section-title"><div><span class="eyebrow">Product index</span><h2 id="product-heading">만드는 제품</h2></div><span class="count">{String(products.length).padStart(2,'0')} products</span></div>
+      {products.map(product => <ProductEntry product={product} />)}
+      <a class="archive-jump" href="#archive">프로젝트 아카이브 보기 ↓</a>
+      <div class="tool-shelf" aria-labelledby="tool-heading">
+        <div class="section-title"><div><span class="eyebrow">Open projects</span><h2 id="tool-heading">공개 도구</h2></div></div>
+        <div class="tool-grid">
+          {publicTools.map(tool => (
+            <article>
+              <img src={tool.image} alt={tool.name + ' 실제 사용 화면'} width="880" height="552" loading="lazy" />
+              <span class="category">{tool.category}</span>
+              <h3>{tool.name}</h3>
+              <p>{tool.description}</p>
+              <div class="links">
+                <a href={tool.url}>{tool.action} ↗</a>
+                <a href={tool.repository} aria-label={tool.name + ' GitHub 저장소'}>GitHub ↗</a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+    <section class="archive" id="archive" aria-labelledby="archive-heading">
+      <div class="wrap">
+        <div class="section-title"><div><span class="eyebrow">Studio archive</span><h2 id="archive-heading">프로젝트 아카이브</h2></div></div>
+        <p class="archive-intro">소설의 한 장면을 고치는 편집기부터 잠깐 쓸 메모를 담는 앱까지, 스튜디오에서 만들어 온 도구들입니다.</p>
+        <nav class="archive-nav" aria-label="아카이브 분야">
+          {projectArchive.map((group, i) => <a href={`#archive-group-${i}`}>{group.category}</a>)}
+        </nav>
+        {projectArchive.map((group, i) => (
+          <section class="archive-group" id={`archive-group-${i}`}>
+            <h3>{group.category}</h3>
+            <dl>{group.projects.map((project,j) => <div id={`work-${i}-${j}`}><dt>{project.name}</dt><dd>{project.summary}</dd></div>)}</dl>
+          </section>
+        ))}
+      </div>
+    </section>
+    <section id="studio" class="studio">
+      <div class="wrap essay"><div><span class="eyebrow">The studio</span><h2>만드는 사람</h2></div>
+      <div><h3>한 사람이 기획하고,<br/>AI와 함께 만듭니다.</h3><p>필요한 기능부터 작게 만듭니다. 직접 써보고 어디에서 막히는지 살핀 뒤, 다음 버전에 반영합니다. 그렇게 배운 것들을 블로그에 기록합니다.</p></div></div>
+    </section>
+    <div class="wrap endnotes">
+      <section id="journal"><span class="eyebrow">Journal</span><h2>작업 기록</h2><p>개발하며 마주친 문제와 그 해결 과정을 기록합니다.</p><a href={latestPost.url}>{latestPost.title} ↗</a></section>
+      <section id="contact"><span class="eyebrow">Contact</span><h2>소식과 연락</h2><p>제품 소식 신청과 연락 창구를 준비하고 있습니다.</p></section>
+    </div>
+  </main>
+  <footer class="wrap footer"><strong>© AIDAON</strong><a href="/privacy/">개인정보처리방침</a></footer>
+</Layout>

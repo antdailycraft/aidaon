@@ -1,0 +1,20 @@
+---
+import type { Product } from '../data/products';
+interface Props { product: Product }
+const { product } = Astro.props;
+---
+<article class="entry" id={product.name.toLowerCase().replaceAll(" ", "-")}>
+  <div class="entry-heading">
+    <span class="category">{product.category}</span>
+    <h3>{product.name}</h3>
+  </div>
+  <div class="entry-copy">
+    <span class:list={['status', { live: product.status === '출시' }]}>{product.status}</span>
+    <p>{product.description}</p>
+    <div class="links">
+      {product.url && <a href={product.url}>제품 열기 ↗</a>}
+      {product.repository && <a href={product.repository}>GitHub ↗</a>}
+      {product.interestUrl ? <a href={product.interestUrl}>{product.interestLabel}</a> : <button disabled>{product.interestLabel} · 준비 중</button>}
+    </div>
+  </div>
+</article>

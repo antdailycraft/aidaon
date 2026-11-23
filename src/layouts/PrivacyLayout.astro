@@ -1,0 +1,49 @@
+---
+import Layout from './Layout.astro';
+interface Props {
+  name: string;
+  description: string;
+}
+const {name, description} = Astro.props;
+---
+<Layout title={`${name} 개인정보처리방침 초안 | AIDAON`} description={description}>
+  <div class="document">
+    <header><a href="/">AIDAON</a></header>
+    <main>
+      <p class="draft">검토 중인 초안</p>
+      <h1>{name}<br />개인정보처리방침</h1>
+      <p>{description}</p>
+      <slot />
+    </main>
+    <footer><a href="/">스튜디오 홈</a><slot name="related" /></footer>
+  </div>
+</Layout>
+
+<style>
+  :global(body:has(.document)) { margin: 0; }
+  .document {
+    --paper: #f7f5ef;
+    --ink: #211f1a;
+    --line: #aaa9a1;
+    background: var(--paper);
+    color: var(--ink);
+    font: 1rem/1.8 system-ui, sans-serif;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    padding-inline: max(1.25rem, calc((100% - 50rem) / 2));
+  }
+  @media (prefers-color-scheme: dark) {
+    .document { --paper: #191917; --ink: #f8f6ef; --line: #686963; }
+  }
+  header, footer { padding-block: 1.15rem; }
+  header { border-bottom: 1px solid var(--line); font-size: 1.3rem; font-weight: 800; }
+  header a { text-decoration: none; }
+  .document :global(a) { color: inherit; text-underline-offset: .2em; }
+  .document :global(a:focus-visible) { outline: 3px solid currentColor; outline-offset: 4px; }
+  main { padding-block: clamp(2.5rem, 7vw, 5rem); }
+  h1 { font-size: clamp(2.35rem, 6vw, 4rem); line-height: 1.12; letter-spacing: -.055em; margin: 1rem 0; }
+  .draft { display: inline-block; margin: 0; padding: .15rem .65rem; border: 1px solid var(--line); font-size: .85rem; border-radius: 2rem; }
+  main :global(h2) { margin: 2.25rem 0 .5rem; font-size: 1.2rem; }
+  main :global(p) { max-width: 65ch; }
+  footer { display: flex; gap: 1.5rem; flex-wrap: wrap; border-top: 1px solid var(--line); }
+</style>

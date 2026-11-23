@@ -1,0 +1,79 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { products } from '../../data/products';
+import { publicTools } from '../../data/public-tools';
+import { projectArchive } from '../../data/project-archive';
+const groups = ['제품', '공개 도구', ...projectArchive.map(group => group.category)];
+const works = [
+  ...products.map(p => ({ name:p.name, copy:p.description, group:'제품', url:p.url || '/#'+p.name.toLowerCase(), image:p.image })),
+  ...publicTools.map(p => ({ name:p.name, copy:p.description, group:'공개 도구', url:p.url, image:p.image })),
+  ...projectArchive.flatMap((group,i) => group.projects.map((p,j) => ({ name:p.name, copy:p.summary, group:group.category, url:`/#work-${i}-${j}`, image:p.image }))),
+];
+---
+<Layout title="프로젝트 갤러리 | AIDAON">
+  <main>
+    <header><a href="/">← AIDAON</a><h1>프로젝트 갤러리</h1>
+      <nav aria-label="분야 필터" hidden>{['전체', ...groups].map((g,i) => <button aria-pressed={i===0} data-group={g}>{g}</button>)}</nav>
+    </header>
+    <section class="viewport" aria-label="프로젝트 목록" tabindex="0">
+      <div class="mosaic">
+        {works.map((work,i) => <article data-group={work.group} style={`--tint:var(--c${i%5});--offset:${i%3}rem`}>
+          <a href={work.url}>
+            <img src={work.image} alt="" loading="lazy" width="800" height="500" />
+            <small>{work.group}</small><h2>{work.name}</h2><p>{work.copy}</p>
+          </a>
+        </article>)}
+      </div>
+    </section>
+  </main>
+</Layout>
+<style>
+  :global(body){margin:0;font-family:system-ui,sans-serif;background:#141b2b;color:#f7f6ef}
+  main{height:100vh;height:100dvh;display:flex;flex-direction:column}
+  header{padding:16px clamp(16px,4vw,64px) 12px;display:flex;align-items:center;gap:12px 24px;flex-wrap:wrap}
+  header a{color:inherit;padding:8px 0} h1{font-size:clamp(20px,2vw,30px);margin:0}
+  nav{display:flex;overflow-x:auto;gap:4px;max-width:100%} [hidden]{display:none!important}
+  button{font:inherit;white-space:nowrap;background:transparent;color:inherit;border:0;border-radius:4px;padding:10px;cursor:pointer}
+  button[aria-pressed=true]{background:#cecdf6;color:#1b2030}
+  .viewport{overflow:auto;overscroll-behavior:contain;flex:1;min-height:0;padding:20px clamp(16px,4vw,64px) 48px;mask-image:linear-gradient(to bottom,transparent,#000 14px,#000)}
+  .mosaic{column-count:4;column-gap:14px;--c0:#cbdcc8;--c1:#e0d5f4;--c2:#f2c58c;--c3:#d4e1fa;--c4:#f3e9d8}
+  article{break-inside:avoid;display:inline-block;width:100%;vertical-align:top;margin:0 0 14px}
+  article a{display:block;background:var(--tint);color:#192236;padding:clamp(14px,1.6vw,26px);padding-bottom:calc(18px + var(--offset));border-radius:10px;text-decoration:none}
+  a:focus-visible,button:focus-visible{outline:3px solid #f56840;outline-offset:2px}
+  article a:hover h2{text-decoration:underline;text-underline-offset:.1em}
+  img{display:block;width:100%;height:auto;aspect-ratio:1.6;object-fit:contain;background:#f6f5f2;margin:0 0 18px}
+  h2{font-size:clamp(22px,2.5vw,44px);line-height:1.07;letter-spacing:-.055em;margin:16px 0;overflow-wrap:anywhere}
+  p{margin:0;line-height:1.6;word-break:keep-all;overflow-wrap:anywhere}
+  @media(max-width:960px){.mosaic{column-count:2}}
+  @media(max-width:550px){header{gap:6px 14px}.mosaic{column-gap:8px}article{margin-bottom:8px}article a{padding:12px}h2{font-size:21px}p{font-size:14px}}
+</style>
+<script>
+  const viewport=document.querySelector<HTMLElement>('.viewport')!;
+  const tiles=Array.from(viewport.querySelectorAll('article'));
+  const nav=document.querySelector<HTMLElement>('nav')!;
+  nav.hidden=false;
+  const motion=matchMedia('(prefers-reduced-motion: reduce)');
+  let position=0;
+  const observer=new IntersectionObserver(entries=>{
+    const top=viewport.scrollTop;
+    const dy=top<position?-48:48;
+    position=top;
+    entries.forEach((entry,index)=>{
+      const tile=entry.target;
+      tile.getAnimations().forEach(animation=>animation.cancel());
+      if(!motion.matches && entry.isIntersecting) tile.animate([
+        {transform:`translateY(${dy}px) scale(.96)`,opacity:.6},
+        {transform:'none',opacity:1}
+      ],{duration:600,delay:Math.min(index,5)*28,easing:'cubic-bezier(.18,.78,.2,1)',fill:'backwards'});
+    });
+  },{root:viewport});
+  tiles.forEach(tile=>observer.observe(tile));
+  motion.addEventListener('change',()=>{if(motion.matches) viewport.getAnimations({subtree:true}).forEach(a=>a.cancel())});
+  nav.addEventListener('click',event=>{
+    const button=(event.target as Element).closest('button');
+    if(!button)return;
+    for(const b of nav.querySelectorAll('button'))b.setAttribute('aria-pressed',String(b===button));
+    for(const tile of tiles)tile.hidden=button.dataset.group!=='전체' && tile.dataset.group!==button.dataset.group;
+    viewport.scrollTop=0;
+  });
+</script>

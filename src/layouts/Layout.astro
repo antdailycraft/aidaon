@@ -1,0 +1,35 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+  lang?: string;
+}
+
+const {
+  title = 'AIDAON | 1인 AI 제품 스튜디오',
+  description = 'AIDAON이 만들고 검증하는 AI 제품과 개발 기록을 만나보세요.',
+  lang = 'ko',
+} = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const image = new URL('/og.png', Astro.site);
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AIDAON" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:alt" content="AIDAON 제품 스튜디오" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <slot name="head" />
+  </head>
+  <body><slot /></body>
+</html>
